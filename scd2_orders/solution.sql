@@ -1,0 +1,27 @@
+-- SCD Type 2 for orders: stg_orders (current snapshot) -> orders_history.
+--
+-- Input:  stg_orders(order_id, customer_id, status, updated_at), see sql/schema.sql.
+--         The content is replaced on every load; a snapshot may contain duplicated rows.
+-- Output: orders_history with the columns
+--             order_id, customer_id, status,
+--             valid_from  (updated_at of the version in the source),
+--             valid_to    (NULL for the current version, or a placeholder: write the choice
+--                          to docs/decisions.md),
+--             is_current.
+--
+-- Requirements (see docs/problem-statement.md, Part A):
+--   1. a load creates new versions only for orders whose status changed;
+--   2. the same snapshot loaded again changes nothing (idempotent);
+--   3. a late old snapshot does not overwrite newer versions; versions that exist only
+--      in the late snapshot are inserted in the right place of the history;
+--   4. duplicated rows inside a snapshot do not create extra versions;
+--   5. an order missing from a snapshot is handled by an explicit rule (decide: keep the
+--      version open or close it) and the rule is written to docs/decisions.md;
+--   6. it runs in a reasonable time on the large dataset (write down how it was measured).
+--
+-- How to check: scripts/replay.py loads the snapshots of a dataset one by one and runs
+-- your procedure; scripts/diff_history.py compares the result with expected_history.csv.
+
+-- TODO 1: table orders_history (key, indexes and constraints are part of the design).
+
+-- TODO 2: procedure or function that applies stg_orders to orders_history.

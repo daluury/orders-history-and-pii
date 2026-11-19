@@ -1,0 +1,34 @@
+[project]
+name = "orders-history-and-pii"
+version = "0.1.0"
+description = "Order status history (SCD Type 2) and reversible email protection on one shared dataset."
+requires-python = ">=3.12"
+dependencies = [
+    "faker>=40.54.0",
+    "psycopg[binary]>=3.3.9",
+    "python-dotenv>=1.2.4",
+]
+
+[tool.uv]
+# the repo root is not a package: `python -m generator` runs from the root
+package = false
+
+[tool.uv.workspace]
+members = ["pii_protection"]
+
+[tool.pytest.ini_options]
+# the repo root is on the import path, so tests can import generator and scripts
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "integration: needs a running PostgreSQL (see compose.yml)",
+]
+
+[tool.ruff]
+line-length = 100
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+]

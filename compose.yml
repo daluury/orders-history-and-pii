@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      # used only on the first start, when the data volume is still empty
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+    ports:
+      # not 5432, so it does not clash with another PostgreSQL on this computer
+      - "${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      # named volume: data stays after the container is removed;
+      # postgres:18 expects this path (without /data at the end)
+      - ohp_pgdata:/var/lib/postgresql
+      # runs only on the first start of an empty volume
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  ohp_pgdata:
