@@ -73,7 +73,7 @@ Keys for the email protection are not stored in the repository: put your own val
 ## Structure
 
 ```text
-compose.yml         PostgreSQL in Docker
+compose.yaml        PostgreSQL in Docker
 generator/          data generator
 scripts/            loading into PostgreSQL, replay, comparison with the expected history
 sql/schema.sql      tables that exist before the solutions (orders_history is created by solution.sql)
